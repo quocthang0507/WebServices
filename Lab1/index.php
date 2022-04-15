@@ -16,7 +16,7 @@ if (@simplexml_load_file($url)) {
     $feeds = simplexml_load_file($url);
 } else {
     $invalidurl = true;
-    echo "<h2>Invalid RSS feed URL";
+    echo "<h2>Invalid RSS feed URL</h2>";
 }
 
 $i = 0;
