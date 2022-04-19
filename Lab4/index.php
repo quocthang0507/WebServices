@@ -1,5 +1,10 @@
+<?php
+ob_start();
+session_start();
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <title>Đăng nhập</title>
@@ -8,29 +13,40 @@
 </head>
 
 <body>
-    <h2>Nhập tên đăng nhập và mật khẩu</h2>
     <div class="container form-signin">
         <?php
-        $msg = '';
-        $users = array("admin" => "admin", "thanglq" => "thanglq"); //Mảng kết hợp
-        $_SESSION['valid'] = false;
+        $msg = "";
+        unset($_SESSION["valid"]);
 
-        if (isset($_POST['login']) && !empty($_POST['username']) && !empty($_POST['password'])) {
-            foreach ($users as $username => $password) {
-                if ($username == $_POST['username'] && $password == $_POST['password']) {
-                    $_SESSION['valid'] = true;
-                    $_SESSION['timeout'] = time();
-                    $_SESSION['username'] = $username;
+        $users = array(
+            "admin" => array("password" => "admin", "fullname" => "Quản trị viên", "score" => 7.5),
+            "thanglq" => array("password" => "thanglq", "fullname" => "La Quốc Thắng", "score" => 10)
+        ); //Mảng kết hợp
+
+        if (isset($_POST["login"]) && !empty($_POST["username"]) && !empty($_POST["password"])) {
+            foreach ($users as $username => $info) {
+                if ($username == $_POST["username"] && $info["password"] == $_POST["password"]) {
+                    $_SESSION["fullname"] = $info["fullname"];
+                    $_SESSION["score"] = $info["score"];
+                    $_SESSION["valid"] = true;
+                    $_SESSION["timeout"] = time();
+                    $_SESSION["username"] = $username;
                 }
+            }
+            if (empty($_SESSION["valid"])) { // Đăng nhập không thành công
+                $_SESSION["valid"] = false;
+                $msg = "Sai tên đăng nhập hoặc mật khẩu";
             }
         }
         ?>
     </div>
     <div class="container">
         <?php
-        if (!$_SESSION['valid']) {
+        if (empty($_SESSION["valid"])) {
         ?>
-            <form class="form-signin" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+            <h2>Nhập tên đăng nhập và mật khẩu</h2>
+
+            <form class="form-signin" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                 <h4 class="form-signin-heading"><?php echo $msg; ?></h4>
                 <input type="text" class="form-control" name="username" placeholder="Nhập tên đăng nhập" required autofocus>
                 <br>
@@ -38,9 +54,12 @@
                 <button class="btn btn-lg btn-primary btn-block" type="submit" name="login">Đăng nhập</button>
             </form>
         <?php
-        } else {
-            echo 'Xin chào ' . $username . ' đã đăng nhập thành công.';
+        } else if ($_SESSION["valid"]) {
+            echo "<h2>Xin chào " . $_SESSION["username"] . " đã đăng nhập thành công</h2>";
+            echo "Họ và tên: <strong>" . $_SESSION['fullname'] . "</strong> <br>";
+            echo "Điểm: <strong>" . $_SESSION['score'] . "</strong>";
         ?>
+            <br>
             <a href="logout.php" title="Đăng xuất">Đăng xuất</a>
         <?php
         }
