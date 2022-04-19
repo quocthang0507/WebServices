@@ -1,7 +1,12 @@
 <?php
 
-$userEmail = isset($_POST["email"]) ? $_POST["email"] : die();
-$userPassword = isset($_POST["password"]) ? $_POST["password"] : die();
+if ($_SERVER["REQUEST_METHOD"] != "POST") {
+    http_response_code(405);
+    exit("Trang này không hỗ trợ phương thức " . $_SERVER["REQUEST_METHOD"]);
+} else if (!isset($_POST["email"]) || !isset($_POST["password"])) {
+    http_response_code(400);
+    exit("Thiếu trường email và/hoặc mật khẩu");
+}
 
 function authentication($user_email, $user_password)
 {
@@ -18,25 +23,31 @@ function authentication($user_email, $user_password)
     return null;
 }
 
-$result = authentication($userEmail, $userPassword);
-if ($result != null) {
-    http_response_code(200);
-    $user_arr = array(
-        "authen" => true,
-        "data" => array(
-            "email" => $result["email"],
-            "fullname" => $result["fullname"],
-            "score" => $result["score"]
-        ),
-        "message" => "Successfully login"
-    );
+try {
+    $user_email =  $_POST["email"];
+    $user_password =  $_POST["password"];
+
+    $result = authentication($user_email, $user_password);
+    if ($result != null) {
+        $user_arr = array(
+            "authen" => true,
+            "data" => array(
+                "email" => $result["email"],
+                "fullname" => $result["fullname"],
+                "score" => $result["score"]
+            ),
+            "message" => "Successfully login"
+        );
+        http_response_code(200);
+    } else {
+        $user_arr = array(
+            "authen" => false,
+            "data" => "",
+            "message" => "Unsuccessfully login"
+        );
+        http_response_code(401);
+    }
     print_r(json_encode($user_arr));
-} else {
-    http_response_code(401);
-    $user_arr = array(
-        "authen" => false,
-        "data" => "",
-        "message" => "Unsuccessfully login"
-    );
-    print_r(json_encode($user_arr));
+} catch (Exception $e) {
+    http_response_code(500);
 }
