@@ -1,3 +1,5 @@
+// For node.js
+
 var XMLHttpRequest = require('xhr2');
 const request = new XMLHttpRequest();
 
