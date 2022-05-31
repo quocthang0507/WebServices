@@ -27,7 +27,7 @@ function renderCourses(courses) {
         </li>
         `
     });
-    listCoursesBlock.innerHTML = html;
+    listCoursesBlock.innerHTML = html.join('');
 }
 
 function handleCreateForm() {
